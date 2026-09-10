@@ -1,11 +1,34 @@
-<div align="center">
+# GIIT Fee Management — Production-Ready Backend
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+**Global Institute of Information & Technology (GIIT)**  
+**Campus Portal Fee Management Backend & Online Payment Engine**
 
-  <h1>Built with AI Studio</h2>
+> [!NOTE]
+> This repository contains the complete, production-ready backend architecture for the GIIT Fee Management web application. The backend is built to run independently and connect to the existing frontend.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+For comprehensive technical documentation, SQL schema design, Razorpay verification workflows, and the Frontend Integration Contract, please refer to:
+- [`backend/README.md`](./backend/README.md)
+- [`backend/database/schema/schema.sql`](./backend/database/schema/schema.sql)
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## Quick Start
 
-</div>
+```bash
+# Install dependencies
+npm install
+
+# Run automated test suite (Tests 1-17 + Critical Isolation Tests)
+npm test
+
+# Run HTTP REST API integration suite
+npm run test:api
+
+# (Optional) Seed demo data
+npm run seed
+
+# Start development server on port 3000
+npm run dev
+```
+
+Admin default credentials:
+- **Username**: `admin@giit.ac.in`
+- **Password**: `Admin@GIIT2026`
