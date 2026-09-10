@@ -30,7 +30,7 @@ export const createStudentSchema = z.object({
   course: z.string().min(2, 'Course name is required (e.g. B.Tech CSE, BCA, MCA)'),
   semester: z.coerce.number().int().min(1, 'Semester must be at least 1').max(12, 'Semester cannot exceed 12'),
   academic_session: z.string().min(4, 'Academic session is required (e.g. 2024-2025)'),
-  mobile: z.string().min(10, 'Valid 10-digit mobile number is required').max(15),
+  mobile: z.string().min(10, 'Valid 10-digit mobile number is required').max(15).optional().default('9800000000'),
   email: z.string().email('Invalid email address format').optional().or(z.literal('')),
   date_of_birth: z.string().optional(),
   address: z.string().optional(),
@@ -45,12 +45,23 @@ export const updateStudentSchema = createStudentSchema.partial().extend({
 
 // Validation schemas for Fees
 export const createFeeSchema = z.object({
+  student_id: z.string().optional(),
   academic_session: z.string().min(4, 'Academic session is required'),
   course: z.string().min(2, 'Course is required'),
   semester: z.coerce.number().int().min(1).max(12),
   fee_type: z.string().min(2, 'Fee type is required (e.g. Tuition, Exam, Hostel)'),
   amount: z.coerce.number().positive('Fee amount must be greater than zero'),
   due_date: z.string().min(4, 'Due date is required (YYYY-MM-DD)'),
+});
+
+export const updateFeeSchema = z.object({
+  academic_session: z.string().min(4).optional(),
+  course: z.string().min(2).optional(),
+  semester: z.coerce.number().int().min(1).max(12).optional(),
+  fee_type: z.string().min(2).optional(),
+  amount: z.coerce.number().positive('Fee amount must be greater than zero').optional(),
+  due_date: z.string().min(4).optional(),
+  status: z.enum(['PENDING', 'PARTIAL', 'PAID', 'OVERDUE']).optional(),
 });
 
 // Validation schemas for Payments
@@ -69,6 +80,11 @@ export const verifyPaymentSchema = z.object({
   fee_id: z.string().optional(),
   amount: z.coerce.number().positive().optional(),
   payment_method: z.string().optional(),
+});
+
+// Validation schemas for Receipts
+export const generateReceiptSchema = z.object({
+  payment_id: z.string().min(1, 'payment_id is required'),
 });
 
 // Validation schemas for Auth

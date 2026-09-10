@@ -8,7 +8,8 @@ export class PaymentController {
       const order = PaymentService.createOrder(req.body);
       sendCreated(res, order, 'Payment order created successfully');
     } catch (err: any) {
-      sendError(res, err.message || 'Failed to create payment order', 400);
+      const status = err.statusCode || (err.message?.includes('not found') ? 404 : 400);
+      sendError(res, err.message || 'Failed to create payment order', status);
     }
   }
 
@@ -21,7 +22,61 @@ export class PaymentController {
       }
       sendCreated(res, result, 'Payment verified and recorded successfully');
     } catch (err: any) {
-      sendError(res, err.message || 'Payment verification failed', 400);
+      const status = err.statusCode || (err.message?.includes('not found') ? 404 : 400);
+      sendError(res, err.message || 'Payment verification failed', status);
+    }
+  }
+
+  public static refund(req: Request, res: Response): void {
+    try {
+      const { paymentId } = req.params;
+      const { reason } = req.body || {};
+      const result = PaymentService.refundPayment(paymentId, reason);
+      sendSuccess(res, result, 200, result.message);
+    } catch (err: any) {
+      const status = err.statusCode || (err.message?.includes('not found') ? 404 : 400);
+      sendError(res, err.message || 'Payment refund failed', status);
+    }
+  }
+
+  public static recordFailure(req: Request, res: Response): void {
+    try {
+      const result = PaymentService.recordFailedPayment(req.body);
+      sendSuccess(res, result, 200, 'Payment failure recorded');
+    } catch (err: any) {
+      const status = err.statusCode || 400;
+      sendError(res, err.message || 'Failed to record payment failure', status);
+    }
+  }
+
+  public static getOrder(req: Request, res: Response): void {
+    try {
+      const { orderId } = req.params;
+      const order = PaymentService.getOrderById(orderId);
+      sendSuccess(res, order);
+    } catch (err: any) {
+      const status = err.statusCode || 404;
+      sendError(res, err.message || 'Order not found', status);
+    }
+  }
+
+  public static getAllOrders(_req: Request, res: Response): void {
+    try {
+      const orders = PaymentService.getAllOrders();
+      sendSuccess(res, orders);
+    } catch (err: any) {
+      sendError(res, err.message || 'Failed to fetch orders', 500);
+    }
+  }
+
+  public static getOrdersByStudent(req: Request, res: Response): void {
+    try {
+      const { studentId } = req.params;
+      const orders = PaymentService.getOrdersByStudent(studentId);
+      sendSuccess(res, orders);
+    } catch (err: any) {
+      const status = err.statusCode || 404;
+      sendError(res, err.message || 'Orders not found', status);
     }
   }
 
@@ -54,3 +109,4 @@ export class PaymentController {
     }
   }
 }
+

@@ -14,7 +14,7 @@ export interface CreateStudentDTO {
   course: string;
   semester: number;
   academic_session: string;
-  mobile: string;
+  mobile?: string;
   email?: string;
   date_of_birth?: string;
   address?: string;
@@ -64,7 +64,7 @@ export class StudentService {
       course: data.course.trim(),
       semester: data.semester,
       academic_session: data.academic_session.trim(),
-      mobile: data.mobile.trim(),
+      mobile: (data.mobile || '9800000000').trim(),
       email: data.email?.trim() || null,
       date_of_birth: data.date_of_birth?.trim() || null,
       address: data.address?.trim() || null,

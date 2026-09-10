@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { SecretsConfigForm } from './components/SecretsConfigForm';
+
 export default function App() {
-  return <div></div>;
+  return <SecretsConfigForm />;
 }

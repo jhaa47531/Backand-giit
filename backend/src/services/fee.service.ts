@@ -5,12 +5,23 @@ import { Fee, FeeStatus } from '../types';
 import { generateFeeId } from '../utils/id_generator';
 
 export interface CreateFeeDTO {
+  student_id?: string;
   academic_session: string;
   course: string;
   semester: number;
   fee_type: string;
   amount: number;
   due_date: string;
+}
+
+export interface UpdateFeeDTO {
+  academic_session?: string;
+  course?: string;
+  semester?: number;
+  fee_type?: string;
+  amount?: number;
+  due_date?: string;
+  status?: FeeStatus;
 }
 
 export class FeeService {
@@ -57,12 +68,12 @@ export class FeeService {
       const paid = PaymentRepository.getTotalPaidByFee(fee.fee_id);
       const due = Math.max(0, Number(fee.amount) - paid);
       
-      let computedStatus: FeeStatus = 'PENDING';
+      let computedStatus: FeeStatus = fee.status;
       if (paid >= Number(fee.amount)) {
         computedStatus = 'PAID';
       } else if (paid > 0) {
         computedStatus = 'PARTIAL';
-      } else if (fee.due_date < today) {
+      } else if (fee.due_date < today && fee.status === 'PENDING') {
         computedStatus = 'OVERDUE';
       }
 
@@ -94,10 +105,18 @@ export class FeeService {
     };
   }
 
-  public static updateFee(feeId: string, data: Partial<CreateFeeDTO>): Fee {
+  public static updateFee(feeId: string, data: UpdateFeeDTO): Fee {
     const existing = FeeRepository.findById(feeId);
     if (!existing) {
       throw new Error(`Fee not found with ID '${feeId}'`);
+    }
+
+    if (data.status && !['PENDING', 'PARTIAL', 'PAID', 'OVERDUE'].includes(data.status)) {
+      throw new Error(`Invalid fee status '${data.status}'. Valid statuses are PENDING, PARTIAL, PAID, OVERDUE.`);
+    }
+
+    if (data.amount !== undefined && Number(data.amount) <= 0) {
+      throw new Error('Fee amount must be greater than zero');
     }
 
     const updated = FeeRepository.update(feeId, data as any);

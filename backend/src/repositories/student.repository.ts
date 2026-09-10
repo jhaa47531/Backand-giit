@@ -110,6 +110,8 @@ export class StudentRepository {
     const existing = this.findById(studentId);
     if (!existing) return false;
 
+    Database.run('DELETE FROM users WHERE student_id = ?', [studentId]);
+    Database.run('DELETE FROM fees WHERE student_id = ?', [studentId]);
     Database.run('DELETE FROM students WHERE student_id = ?', [studentId]);
     return true;
   }

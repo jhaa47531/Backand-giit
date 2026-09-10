@@ -1,6 +1,6 @@
 {
   "name": "GIIT Fee Management Backend",
-  "description": "Production-ready backend with relational database architecture, student CRUD, fee tracking, Razorpay payment verification, receipts, and dashboard APIs for Global Institute of Information & Technology.",
+  "description": "Production-ready backend with relational database architecture, student CRUD, fee tracking, Razorpay payment verification, receipts, and environment variables configuration interface for Global Institute of Information & Technology.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

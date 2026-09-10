@@ -1,6 +1,6 @@
 export type StudentStatus = 'ACTIVE' | 'INACTIVE' | 'PASSOUT' | 'SUSPENDED';
 export type FeeStatus = 'PENDING' | 'PARTIAL' | 'PAID' | 'OVERDUE';
-export type PaymentStatus = 'SUCCESS' | 'REFUNDED' | 'FAILED';
+export type PaymentStatus = 'SUCCESS' | 'REFUNDED' | 'FAILED' | 'PENDING';
 export type UserRole = 'ADMIN' | 'STUDENT';
 export type OrderStatus = 'CREATED' | 'PAID' | 'EXPIRED' | 'FAILED';
 
@@ -93,6 +93,7 @@ export interface Receipt {
   payment_id: string;
   payment_date: string;
   student_id: string;
+  fee_id: string | null;
   student_name: string;
   enrollment_number: string;
   course: string;
@@ -100,10 +101,33 @@ export interface Receipt {
   academic_session: string;
   fee_type: string;
   amount_paid: number;
+  amount?: number;
   payment_status: PaymentStatus;
   payment_method: string;
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  student_details: {
+    student_id: string;
+    student_name: string;
+    enrollment_number: string;
+    course: string;
+    semester: number;
+    academic_session: string;
+    father_name: string | null;
+    mother_name: string | null;
+    mobile: string;
+    email: string | null;
+  };
+  fee_details: {
+    fee_id: string | null;
+    fee_type: string;
+    amount: number;
+    due_date: string | null;
+    academic_session: string;
+    semester: number;
+    course: string;
+    status?: FeeStatus;
+  } | null;
   total_fee_for_student: number;
   total_paid_by_student: number;
   total_due_for_student: number;

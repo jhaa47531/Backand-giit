@@ -1,5 +1,5 @@
 import { Database } from '../db/database';
-import { Payment, PaymentOrder, OrderStatus } from '../types';
+import { Payment, PaymentOrder, OrderStatus, PaymentStatus } from '../types';
 
 export class PaymentRepository {
   public static getNextSequence(): number {
@@ -65,6 +65,20 @@ export class PaymentRepository {
     return Database.query<Payment>(
       'SELECT * FROM payments WHERE student_id = ? ORDER BY payment_date DESC, created_at DESC',
       [studentId]
+    );
+  }
+
+  public static findByFee(feeId: string): Payment[] {
+    return Database.query<Payment>(
+      'SELECT * FROM payments WHERE fee_id = ? ORDER BY payment_date DESC, created_at DESC',
+      [feeId]
+    );
+  }
+
+  public static updateReceiptNumber(paymentId: string, receiptNumber: string): void {
+    Database.run(
+      'UPDATE payments SET receipt_number = ?, updated_at = CURRENT_TIMESTAMP WHERE payment_id = ?',
+      [receiptNumber, paymentId]
     );
   }
 
@@ -139,6 +153,33 @@ export class PaymentRepository {
     Database.run(
       'UPDATE payment_orders SET status = ? WHERE order_id = ?',
       [status, orderId]
+    );
+  }
+
+  public static updatePaymentStatus(paymentId: string, status: PaymentStatus): void {
+    Database.run(
+      'UPDATE payments SET payment_status = ?, updated_at = CURRENT_TIMESTAMP WHERE payment_id = ?',
+      [status, paymentId]
+    );
+  }
+
+  public static findOrdersByStudent(studentId: string): PaymentOrder[] {
+    return Database.query<PaymentOrder>(
+      'SELECT * FROM payment_orders WHERE student_id = ? ORDER BY created_at DESC',
+      [studentId]
+    );
+  }
+
+  public static findOrdersByFee(feeId: string): PaymentOrder[] {
+    return Database.query<PaymentOrder>(
+      'SELECT * FROM payment_orders WHERE fee_id = ? ORDER BY created_at DESC',
+      [feeId]
+    );
+  }
+
+  public static findAllOrders(): PaymentOrder[] {
+    return Database.query<PaymentOrder>(
+      'SELECT * FROM payment_orders ORDER BY created_at DESC'
     );
   }
 }

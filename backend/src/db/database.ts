@@ -83,6 +83,8 @@ export class Database {
     try {
       const dbFilePath = customDbPath || config.DATABASE_FILE;
       const data = this.db.export();
+      // Re-enable foreign keys since sql.js db.export() resets connection PRAGMAs
+      this.db.run('PRAGMA foreign_keys = ON;');
       const buffer = Buffer.from(data);
       const dir = path.dirname(dbFilePath);
       if (!fs.existsSync(dir)) {
@@ -193,6 +195,10 @@ export class Database {
       this.run('UPDATE sequences SET next_val = ? WHERE name = ?', [currentVal + 1, seqName]);
       return currentVal;
     });
+  }
+
+  public static getRawDb(): any {
+    return this.db;
   }
 
   public static close(): void {
