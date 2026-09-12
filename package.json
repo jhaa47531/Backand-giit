@@ -14,6 +14,7 @@
     "test:fee": "tsx backend/tests/fee_crud_test.ts",
     "test:receipt": "tsx backend/tests/receipt_generator_test.ts",
     "test:razorpay": "tsx backend/tests/razorpay_flow_test.ts",
+    "test:master": "tsx backend/tests/master_prompt_tests.ts",
     "seed": "tsx backend/database/seed/seed.ts",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",

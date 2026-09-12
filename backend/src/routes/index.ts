@@ -9,6 +9,7 @@ import systemRoutes from './system.routes';
 import { sendSuccess } from '../utils/response';
 import { config } from '../config/env';
 import { Database } from '../db/database';
+import { COURSE_DEFINITIONS, ALLOWED_COURSES } from '../constants/courses';
 
 const router = Router();
 
@@ -72,6 +73,26 @@ router.get('/health', (_req, res) => {
       timestamp: new Date().toISOString(),
     });
   }
+});
+
+// Course and Academic Structure Catalog
+router.get('/courses', (_req, res) => {
+  sendSuccess(res, {
+    courses: COURSE_DEFINITIONS,
+    allowed_courses: ALLOWED_COURSES,
+    cycle_rules: {
+      odd_cycle: {
+        semesters: [1, 3, 5, 7],
+        name: 'Odd Semester Cycle (December)',
+        advance_payment_deadline: '15 October',
+      },
+      even_cycle: {
+        semesters: [2, 4, 6, 8],
+        name: 'Even Semester Cycle (June)',
+        advance_payment_deadline: '15 April',
+      },
+    },
+  });
 });
 
 // Mount modular sub-routers

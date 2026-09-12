@@ -55,6 +55,14 @@ router.get(
   StudentController.getFeeSummary
 );
 
+// Get student centralized fee calculation breakdown (Admin or same Student)
+router.get(
+  '/:studentId/fee-status',
+  authenticateJWT,
+  enforceStudentAccess,
+  StudentController.getFeeStatus
+);
+
 // Fee obligations for student (Admin or same Student)
 router.get(
   '/:studentId/fees',

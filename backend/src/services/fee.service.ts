@@ -3,6 +3,7 @@ import { StudentRepository } from '../repositories/student.repository';
 import { PaymentRepository } from '../repositories/payment.repository';
 import { Fee, FeeStatus } from '../types';
 import { generateFeeId } from '../utils/id_generator';
+import { validateCourseAndSemester } from '../constants/courses';
 
 export interface CreateFeeDTO {
   student_id?: string;
@@ -35,6 +36,13 @@ export class FeeService {
       throw new Error('Fee amount must be greater than zero');
     }
 
+    const courseToValidate = data.course?.trim() || student.course;
+    const semToValidate = Number(data.semester);
+    const validation = validateCourseAndSemester(courseToValidate, semToValidate);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
     const seq = FeeRepository.getNextSequence();
     const feeId = generateFeeId(seq);
 
@@ -42,8 +50,8 @@ export class FeeService {
       fee_id: feeId,
       student_id: studentId,
       academic_session: data.academic_session.trim(),
-      course: data.course.trim(),
-      semester: Number(data.semester),
+      course: courseToValidate,
+      semester: semToValidate,
       fee_type: data.fee_type.trim(),
       amount: Number(data.amount),
       due_date: data.due_date.trim(),
@@ -117,6 +125,15 @@ export class FeeService {
 
     if (data.amount !== undefined && Number(data.amount) <= 0) {
       throw new Error('Fee amount must be greater than zero');
+    }
+
+    if (data.course !== undefined || data.semester !== undefined) {
+      const courseToValidate = data.course !== undefined ? data.course.trim() : existing.course;
+      const semToValidate = data.semester !== undefined ? Number(data.semester) : existing.semester;
+      const validation = validateCourseAndSemester(courseToValidate, semToValidate);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
     }
 
     const updated = FeeRepository.update(feeId, data as any);

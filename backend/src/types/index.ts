@@ -84,6 +84,7 @@ export interface StudentFeeSummary {
   total_due: number;
   fee_records: Fee[];
   recent_payments: Payment[];
+  fee_calculation?: any;
 }
 
 export interface Receipt {

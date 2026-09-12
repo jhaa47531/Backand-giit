@@ -4,6 +4,8 @@ import { PaymentRepository } from '../repositories/payment.repository';
 import { UserRepository } from '../repositories/user.repository';
 import { Student, StudentFeeSummary } from '../types';
 import { generateStudentId, generateUserId } from '../utils/id_generator';
+import { validateCourseAndSemester } from '../constants/courses';
+import { FeeEngineService } from './fee_engine.service';
 import bcrypt from 'bcryptjs';
 
 export interface CreateStudentDTO {
@@ -51,6 +53,12 @@ export class StudentService {
       throw new Error(`A student with enrollment number '${data.enrollment_number}' already exists`);
     }
 
+    // Strict validation of course and semester
+    const validation = validateCourseAndSemester(data.course, Number(data.semester));
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
     const seq = StudentRepository.getNextSequence();
     const studentId = generateStudentId(seq);
 
@@ -62,7 +70,7 @@ export class StudentService {
       father_name: data.father_name?.trim() || null,
       mother_name: data.mother_name?.trim() || null,
       course: data.course.trim(),
-      semester: data.semester,
+      semester: Number(data.semester),
       academic_session: data.academic_session.trim(),
       mobile: (data.mobile || '9800000000').trim(),
       email: data.email?.trim() || null,
@@ -123,6 +131,15 @@ export class StudentService {
       throw new Error(`Student not found with ID '${studentId}'`);
     }
 
+    if (data.course !== undefined || data.semester !== undefined) {
+      const courseToCheck = data.course !== undefined ? data.course : existing.course;
+      const semToCheck = data.semester !== undefined ? Number(data.semester) : existing.semester;
+      const validation = validateCourseAndSemester(courseToCheck, semToCheck);
+      if (!validation.valid) {
+        throw new Error(validation.error);
+      }
+    }
+
     const updated = StudentRepository.update(studentId, data);
     if (!updated) {
       throw new Error(`Failed to update student with ID '${studentId}'`);
@@ -164,6 +181,9 @@ export class StudentService {
     // Real due amount
     const total_due = Math.max(0, total_fee - total_paid);
 
+    // Compute centralized fee calculation from the FeeEngine
+    const feeCalculation = FeeEngineService.computeForStudent(student);
+
     return {
       student,
       total_fee,
@@ -171,6 +191,7 @@ export class StudentService {
       total_due,
       fee_records: feeRecords,
       recent_payments: recentPayments,
+      fee_calculation: feeCalculation,
     };
   }
 }

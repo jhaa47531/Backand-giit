@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { StudentService } from '../services/student.service';
+import { FeeEngineService } from '../services/fee_engine.service';
 import { sendCreated, sendError, sendNotFound, sendSuccess } from '../utils/response';
 
 export class StudentController {
@@ -78,6 +79,16 @@ export class StudentController {
       sendSuccess(res, summary);
     } catch (err: any) {
       sendNotFound(res, err.message || 'Student fee summary not found');
+    }
+  }
+
+  public static getFeeStatus(req: Request, res: Response): void {
+    try {
+      const { studentId } = req.params;
+      const calculation = FeeEngineService.calculateStudentFeeStatus(studentId);
+      sendSuccess(res, calculation);
+    } catch (err: any) {
+      sendNotFound(res, err.message || 'Student fee status not found');
     }
   }
 }

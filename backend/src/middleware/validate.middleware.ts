@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodError } from 'zod';
 import { sendValidationError } from '../utils/response';
+import { validateCourseAndSemester } from '../constants/courses';
 
 export function validateBody<T>(schema: z.ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -21,8 +22,8 @@ export function validateBody<T>(schema: z.ZodSchema<T>) {
   };
 }
 
-// Validation schemas for Student
-export const createStudentSchema = z.object({
+// Base validation schema for Student
+export const baseStudentSchema = z.object({
   enrollment_number: z.string().min(2, 'Enrollment number is required and must be at least 2 characters'),
   student_name: z.string().min(2, 'Student name is required and must be at least 2 characters'),
   father_name: z.string().optional(),
@@ -39,8 +40,32 @@ export const createStudentSchema = z.object({
   initial_password: z.string().min(6, 'Password must be at least 6 characters').optional(),
 });
 
-export const updateStudentSchema = createStudentSchema.partial().extend({
+export const createStudentSchema = baseStudentSchema.superRefine((data, ctx) => {
+  if (data.course && data.semester !== undefined) {
+    const res = validateCourseAndSemester(data.course, Number(data.semester));
+    if (!res.valid) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: res.error || 'Invalid semester for course',
+        path: ['semester'],
+      });
+    }
+  }
+});
+
+export const updateStudentSchema = baseStudentSchema.partial().extend({
   status: z.enum(['ACTIVE', 'INACTIVE', 'PASSOUT', 'SUSPENDED']).optional(),
+}).superRefine((data, ctx) => {
+  if (data.course && data.semester !== undefined) {
+    const res = validateCourseAndSemester(data.course, Number(data.semester));
+    if (!res.valid) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: res.error || 'Invalid semester for course',
+        path: ['semester'],
+      });
+    }
+  }
 });
 
 // Validation schemas for Fees
